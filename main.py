@@ -13,7 +13,14 @@ unitsize_default = 10
 
 class UruuHiliWord:
     def __init__(self, in_str: str):
+        self.empty = len(in_str) == 0
+        if self.empty:
+            return
         self.syllables = []
+        self.punctuation = None
+        if in_str[0] in ".,":
+            self.punctuation = in_str[0]
+            in_str = in_str[1:]
         if "-" in in_str:
             (uruu_str, hili_str) = in_str.split("-")
             while (len(uruu_str) > 0 or len(hili_str) > 0):
@@ -38,24 +45,45 @@ class UruuHiliWord:
                         self.syllables.append((uruu.UruuSyl("", "", ""), hsyl))
 
     def __repr__(self):
+        if self.empty:
+            return ""
         return " ".join([f"[{syl[0]}-{syl[1]}]" for syl in self.syllables])
 
     def length(self) -> int:
+        if self.empty:
+            return 0
         syl_lengths = [max(syl[0].length(), syl[1].length()) for syl in self.syllables]
-        return sum(syl_lengths) + 2
+        return sum(syl_lengths) + punctuation_len(self.punctuation)
 
     def draw(self, ctx: cairo.Context):
-        ctx.move_to(-2.5, 0)
-        ctx.line_to(2.5, 0)
-        ctx.stroke()
+        if self.empty:
+            return
+        match self.punctuation:
+            case ".":
+                ctx.move_to(-8, 0)
+                ctx.line_to(8, 0)
+                ctx.move_to(-8, 2)
+                ctx.line_to(8, 2)
+            case ",":
+                ctx.move_to(-8, 0)
+                ctx.line_to(8, 0)
+            case None:
+                ctx.move_to(-2.5, 0)
+                ctx.line_to(2.5, 0)
         ctx.move_to(0, 0)
         ctx.line_to(0, self.length())
         ctx.stroke()
-        ctx.translate(0, 2)
+        ctx.translate(0, punctuation_len(self.punctuation))
         for syl in self.syllables:
             syl[0].draw(ctx)
             syl[1].draw(ctx)
             ctx.translate(0, max(syl[0].length(), syl[1].length()))
+
+
+def punctuation_len(ch: str) -> int:
+        match ch:
+            case ".": return 4
+            case _: return 2
 
 
 def parse_line(in_str: str) -> list[UruuHiliWord]:

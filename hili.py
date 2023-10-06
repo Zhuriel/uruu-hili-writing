@@ -19,9 +19,9 @@ class HiliSyl:
     def length(self) -> int:
         ret = 8
         if len(self.onset) == 2:
-            ret += 4
+            ret += 3
         if len(self.coda) == 1:
-            ret += 4
+            ret += 3
         return ret
 
     def draw(self, ctx: cairo.Context):
@@ -30,7 +30,7 @@ class HiliSyl:
         print(f"drawing {self}")
 
         if len(self.onset) == 2:
-            ctx.translate(0, 4)
+            ctx.translate(0, 3)
             draw_cons(self.onset[0], ctx, False)
             draw_core(self.onset[1], ctx)
         else:
@@ -40,7 +40,7 @@ class HiliSyl:
         draw_cons(self.coda, ctx, True)
         ctx.translate(0, -6)
         if len(self.onset) == 2:
-            ctx.translate(0, -4)
+            ctx.translate(0, -3)
 
 
 def draw_core(cons: str, ctx: cairo.Context):
@@ -166,8 +166,8 @@ def draw_cons(cons: str, ctx: cairo.Context, bottom: bool):
             ctx.stroke()
         case "n":
             ctx.move_to(0, 0)
-            ctx.line_to(sign * -2, 3)
-            ctx.line_to(sign * 2, 3)
+            ctx.line_to(sign * -2, sign * -3)
+            ctx.line_to(sign * 2, sign * -3)
             ctx.close_path()
             ctx.stroke()
         case "r":
