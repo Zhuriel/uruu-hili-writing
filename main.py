@@ -18,7 +18,7 @@ class UruuHiliWord:
             return
         self.syllables = []
         self.punctuation = None
-        if in_str[0] in ".,":
+        if in_str[0] in ".,>!":
             self.punctuation = in_str[0]
             in_str = in_str[1:]
         if "-" in in_str:
@@ -52,8 +52,9 @@ class UruuHiliWord:
     def length(self) -> int:
         if self.empty:
             return 0
-        syl_lengths = [max(syl[0].length(), syl[1].length()) for syl in self.syllables]
-        return sum(syl_lengths) + punctuation_len(self.punctuation)
+        syl_lengths = [max(syl[0].length(), syl[1].length())
+                       for syl in self.syllables]
+        return sum(syl_lengths) + punctuation_len(self.punctuation) + 2
 
     def draw(self, ctx: cairo.Context):
         if self.empty:
@@ -67,6 +68,21 @@ class UruuHiliWord:
             case ",":
                 ctx.move_to(-8, 0)
                 ctx.line_to(8, 0)
+            case ">":
+                ctx.move_to(-2, 0)
+                ctx.line_to(-2.5, 0)
+                ctx.move_to(2, 0)
+                ctx.line_to(2.5, 0)
+            case "!":
+                ctx.move_to(-8, 0)
+                ctx.line_to(8, 0)
+                ctx.line_to(8, 4)
+                ctx.line_to(-8, 4)
+                ctx.close_path()
+                ctx.move_to(-5, 0.2)
+                ctx.line_to(-3, 3.8)
+                ctx.move_to(5, 0.2)
+                ctx.line_to(3, 3.8)
             case None:
                 ctx.move_to(-2.5, 0)
                 ctx.line_to(2.5, 0)
@@ -78,12 +94,14 @@ class UruuHiliWord:
             syl[0].draw(ctx)
             syl[1].draw(ctx)
             ctx.translate(0, max(syl[0].length(), syl[1].length()))
+        ctx.translate(0, 2)
 
 
-def punctuation_len(ch: str) -> int:
-        match ch:
-            case ".": return 4
-            case _: return 2
+def punctuation_len(ch: str | None) -> int:
+    match ch:
+        case ".": return 4
+        case "!": return 6
+        case _: return 2
 
 
 def parse_line(in_str: str) -> list[UruuHiliWord]:
@@ -111,13 +129,13 @@ def draw_line(ctx: cairo.Context, line: list[UruuHiliWord]):
 
 
 def draw_str(
-    string: str | None = None,
-    infile: str | None = None,
-    name: str | None = None,
-    mode: str = "png",
-    maxsize: int = 2000,
-    colors: str = "w"):
-    
+        string: str | None = None,
+        infile: str | None = None,
+        name: str | None = None,
+        mode: str = "png",
+        maxsize: int = 2000,
+        colors: str = "w"):
+
     if name is None:
         if infile is None:
             name = "out"
@@ -141,13 +159,13 @@ def draw_str(
 
     match mode:
         case "png":
-            surface = cairo.ImageSurface(
+            surface: cairo.Surface = cairo.ImageSurface(
                 cairo.FORMAT_ARGB32,
                 int((size_x + 4) * unitsize),
                 int((size_y + 4) * unitsize)
             )
         case "svg":
-            surface = cairo.SVGSurface(
+            surface: cairo.Surface = cairo.SVGSurface(
                 f"{name}.svg",
                 int((size_x + 4) * unitsize),
                 int((size_y + 4) * unitsize)

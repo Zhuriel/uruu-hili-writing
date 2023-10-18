@@ -65,7 +65,7 @@ def draw_core(cons: str, ctx: cairo.Context):
             ctx.line_to(-8, 3)
             ctx.line_to(-5, 0)
             ctx.line_to(-5, 5.8)
-            ctx.stroke
+            ctx.stroke()
         case "r":
             ctx.move_to(-5, 0.2)
             ctx.line_to(-5, 5.8)
@@ -78,6 +78,7 @@ def draw_core(cons: str, ctx: cairo.Context):
             ctx.move_to(-5, 3)
             ctx.arc(-5, 1.5, 1.5, 0.5 * math.pi, 2.5 * math.pi)
             ctx.arc(-5, 4.5, 1.5, -0.5 * math.pi, 1.5 * math.pi)
+            ctx.stroke()
         case "h":
             ctx.move_to(-7.8, 2.8)
             ctx.line_to(-5.2, 0.2)
@@ -222,21 +223,18 @@ def parse_syl(in_str: str) -> (HiliSyl, str):
         print(f"invalid syllable in {in_str} (invalid vowel sequence)")
         exit(1)
     # coda consonant
-    if ((len(work_str) >= 3 and 
-         work_str[0] in hili_consonants and 
-         work_str[1] in hili_consonants and
-         work_str[2] in hili_consonants) or
-        (len(work_str) == 1 and work_str[0] in hili_consonants)):
+    if ((len(work_str) >= 2 and
+            work_str[0] in hili_consonants and
+            work_str[1] in hili_consonants) or
+            (len(work_str) == 1 and work_str[0] in hili_consonants)):
 
         coda = work_str[0]
-        work_str = work_str[1:] 
-    #explicitly separated case
-    if (len(work_str) >= 2 and 
-        work_str[0] in hili_consonants and
-        work_str[1] == "'"):
+        work_str = work_str[1:]
+    # explicitly separated case
+    if (len(work_str) >= 2 and
+            work_str[0] in hili_consonants and
+            work_str[1] == "'"):
 
         coda = work_str[0]
-        work_str = work_str[2:] 
+        work_str = work_str[2:]
     return (HiliSyl(onset, nucleus, coda), work_str)
-
-

@@ -28,14 +28,14 @@ class UruuSyl:
         ctx.translate(0, 8)
         draw_cons(self.coda, ctx)
         ctx.translate(0, -cons_length(self.onset) - 8)
-        
+
 
 def cons_length(ch: str) -> int:
     match ch:
         case "": return 0
         case "r": return 2
         case "d" | "g": return 4
-        case "b": return 6
+        case "b" | "ñ": return 6
         case _: return 5
 
 
@@ -110,13 +110,17 @@ def draw_vowel(vow: str, ctx: cairo.Context):
     a2 = 1 - u_angle
     match vow:
         case "u":
-            ctx.move_to(5 + (3 * math.cos(a1 * math.pi)), 3 + (3 * math.sin(a1 * math.pi)))
+            startx = 5 + (3 * math.cos(a1 * math.pi))
+            starty = 3 + (3 * math.sin(a1 * math.pi))
+            ctx.move_to(startx, starty)
             ctx.arc(5, 3, 3, a1 * math.pi, a2 * math.pi)
             ctx.move_to(8, 0)
             ctx.line_to(8, 6)
             ctx.stroke()
         case "uu":
-            ctx.move_to(5 + (3 * math.cos(a1 * math.pi)), 3 + (3 * math.sin(a1 * math.pi)))
+            startx = 5 + (3 * math.cos(a1 * math.pi))
+            starty = 3 + (3 * math.sin(a1 * math.pi))
+            ctx.move_to(startx, starty)
             ctx.arc(5, 3, 3, a1 * math.pi, a2 * math.pi)
             ctx.stroke()
         case "oo":
@@ -182,18 +186,18 @@ def parse_syl(in_str: str) -> (UruuSyl, str):
         print(f"invalid syllable in {in_str}")
         exit(1)
     # coda consonant
-    if ((len(work_str) >= 2 and 
-         work_str[0] in uruu_consonants and 
-         work_str[1] in uruu_consonants) or
-        (len(work_str) == 1 and work_str[0] in uruu_consonants)):
+    if ((len(work_str) >= 2 and
+            work_str[0] in uruu_consonants and
+            work_str[1] in uruu_consonants) or
+            (len(work_str) == 1 and work_str[0] in uruu_consonants)):
 
         coda = work_str[0]
         work_str = work_str[1:]
-    #explicitly separated case
-    if (len(work_str) >= 2 and 
-        work_str[0] in uruu_consonants and
-        work_str[1] == "'"):
+    # explicitly separated case
+    if (len(work_str) >= 2 and
+            work_str[0] in uruu_consonants and
+            work_str[1] == "'"):
 
         coda = work_str[0]
-        work_str = work_str[2:] 
+        work_str = work_str[2:]
     return (UruuSyl(initial, nucleus, coda), work_str)
